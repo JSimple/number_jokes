@@ -1,51 +1,132 @@
 # polynomial generator rule: rx^n + rx^n-1 ... rx^n-n
-# figure out again how scipy fit line works
 from scipy.optimize import curve_fit
 from random import random
-#res = curve_fit(lambda x, a, b, c, d, e: a*x**4 + b*x**3 + c*x**2 + d*x + e, list(range(5)), [4, 6, 8, 10, 13])
-
-# num1 = round(random()* 10, 0) 
-# num2 = round(random()* 10, 0)  + 10
-# print(num1, num2)
-# coefs = curve_fit(lambda x, a, b: a + b*x, list(range(2)), [num1, num2])
-
-# print(coefs)
+from time import sleep
 
 class NumberJoke:
     def __init__(self):
-        self.setup_polynomial, self.setup_polynomial_formatter = self.gen_polynomial()
-        self.setup_pts = self.gen_setup()[0]
-        self.setup_rule = self.gen_setup()[1]
-        self.punchline_polynomial, self.setup_polynomial_formatter = self.gen_punchline_polynomial()
         
-    def gen_polynomial(self, terms = 2):
+        self.setup_polynomial, self.setup_polynomial_formatter = self.gen_polynomial_form(2)
+        self.punchline_polynomial, self.punchline_polynomial_formatter = self.gen_polynomial_form(5)
+       
+        self.setup = self.joke_part()
+        self.setup_pts = self.setup[0]
+        self.setup_rule = self.setup[1]
+       
+        self.punchline = self.joke_part(punchline=True)
+        self.punchline_pts = self.punchline[0]
+        self.punchline_rule = self.punchline[1]
+        
+        self.joke = (self.setup_pts + ['...'] + self.punchline_pts, 'This joke is funny because first you think the numers follow this rule:\n' + self.setup_rule + '\nbut then the punchline reveals that they actually follow this rule:\n' + self.punchline_rule)
+        self.rating = 'unrated'
+    
+    def gen_polynomial_form(self, terms = 2):
+        
         def formatter(coefs):
-            return f'{coefs[0]} + {coefs[1]} * x'
-        return (lambda x, a, b: a + b*x), formatter
-    def gen_punchline_polynomial(self, terms = 5):
-        def formatter(coefs):
-            return f'{coefs[0]} + {coefs[1]} * x + {coefs[2]} * x^2 + {coefs[3]} * x^3 + {coefs[4]} * x^4'
-        return (lambda x, a, b, c, d, e: a + b*x + c*x**2 + d*x**3 + e*x**4), formatter
-    def setup_coef(self, pts):
-        coefs = curve_fit(self.setup_polynomial, list(range(len(pts))), pts)[0]
+            # error handling
+            if terms != coefs:
+                raise Exception('you need to have the same number of terms as coeficients')
+            power = terms - 1
+            format = f''
+            while power > 0:
+                if power == 0:
+                    format += f'{coefs[power]}'
+                elif power == 1:
+                    format += f'+ {coefs[power]} * x'
+                else:
+                    format += f' + {coefs[power]} * x^{power}'
+                power -= 1
+            return format
+        
+        coef_var_names = ['coef_' + str(i) for i in range(terms)]
+
+        def polyomial_form(x, *coef_var_names):
+            power = terms - 1
+            output =  0
+            
+            while power >= 0:
+                output += coef_var_names[power] * x**power
+            
+            return output
+        
+        return polyomial_form, formatter
+        
+    # def gen_polynomial_form(self, terms = 2):
+    #     if terms == 2:
+    #         def formatter(coefs):
+    #             return f'{coefs[0]} + {coefs[1]} * x'
+    #         return (lambda x, a, b: a + b*x), formatter
+    #     elif terms == 5:
+    #         def formatter(coefs):
+    #             return f'{coefs[0]} + {coefs[1]} * x + {coefs[2]} * x^2 + {coefs[3]} * x^3 + {coefs[4]} * x^4'
+    #         return (lambda x, a, b, c, d, e: a + b*x + c*x**2 + d*x**3 + e*x**4), formatter
+    #     else:
+    #         print("this function is still hardcoded")
+            
+    def get_coef(self, pts, punchline = False):
+        polynomial_fn = self.punchline_polynomial if punchline else self.setup_polynomial
+        coefs = curve_fit(polynomial_fn, list(range(len(pts))), pts)[0]
         rounded = [round(coef, 2) for coef in coefs]
         return rounded
-    def gen_setup(self, length = 4):
-        pts = [2,4]
-        setup_pts = pts[:]
-        coefs = self.setup_coef(pts)
-        # generate the rest of the points in our setup
-        for x in range(len(pts),length):
-            y = self.setup_polynomial(x, *coefs)
-            setup_pts.append(y)
+    
+    # generates a list of random input points
+    def gen_pts(self, len = 2):
+        return [round(random()* 50, 0) for i in range(len)]
+    
+    # generates a setup or punchline
+    def joke_part(self, punchline = False, length = 4):
+        
+        # define variables according to whether this is a set-up or punchline
+        length = (length * 2) if punchline else length
+        pts = self.setup_pts + self.gen_pts(len = 1) if punchline else self.gen_pts()
+        coefs = self.get_coef(pts, punchline)
+        polynomial_fn = self.punchline_polynomial if punchline else self.setup_polynomial
+        formatter = self.punchline_polynomial_formatter if punchline else self.setup_polynomial_formatter
+        
+        # generate the rest of the points in our joke_part
+        pts_len = len(pts)
+        for x in range(pts_len,length):
+            y = polynomial_fn(x, *coefs)
+            pts.append(y)
+            
         # generate the string formatted rule for our setup
-        rule = self.setup_polynomial_formatter(coefs)
-        return setup_pts,rule
-    ## write a gen punchline fn
+        rule = formatter(coefs)
+        return_pts = pts[pts_len:] if punchline else pts
+        return return_pts,rule
+
+        #change so that punchline just gives us the punchline pts alone
+    
+    def tell_joke(self, suspense = 1):
+        for n in self.setup_pts:
+            sleep(2 * suspense)
+            print('\n' + str(n))
+        sleep(2 * suspense)
+        print('\n...')
+        sleep(1.5 * suspense)
+        for n in self.punchline_pts:
+            sleep(suspense)
+            print('\n' + str(n))
+        sleep(0.5 * suspense)
+        print('\n !! :-)')
+        sleep(4 * suspense)
+        print('\nThis joke was funny because first you thought the numers followed this rule:')
+        sleep(1.5 * suspense)     
+        print('\n y = ' + self.setup_rule)
+        sleep(2.5 * suspense)
+        print('\nbut then the punchline revealed that they actually follow this rule:')
+        sleep(1.5 * suspense)     
+        print('\n y = ' + self.punchline_rule)
+        sleep(3 * suspense)
+        rating = input('\nHow would you rate this joke on a scale of 1 (bad) to 10 (joke of the month)?\n')
+        self.rating = rating
+        print('\nThanks for your input!')
+        
+    
         
             
 
-            
+## write a gen punchline fn
+## un-hard code things one by one            
     
     
 # 2, 4, 6, 8 ... 100, 150
