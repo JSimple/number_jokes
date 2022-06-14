@@ -1,6 +1,6 @@
 # polynomial generator rule: rx^n + rx^n-1 ... rx^n-n
 from scipy.optimize import curve_fit
-from random import random
+from random import *
 from time import sleep
 
 class NumberJoke:
@@ -20,48 +20,51 @@ class NumberJoke:
         self.joke = (self.setup_pts + ['...'] + self.punchline_pts, 'This joke is funny because first you think the numers follow this rule:\n' + self.setup_rule + '\nbut then the punchline reveals that they actually follow this rule:\n' + self.punchline_rule)
         self.rating = 'unrated'
     
-    def gen_polynomial_form(self, terms = 2):
-        
-        def formatter(coefs):
-            # error handling
-            if terms != coefs:
-                raise Exception('you need to have the same number of terms as coeficients')
-            power = terms - 1
-            format = f''
-            while power > 0:
-                if power == 0:
-                    format += f'{coefs[power]}'
-                elif power == 1:
-                    format += f'+ {coefs[power]} * x'
-                else:
-                    format += f' + {coefs[power]} * x^{power}'
-                power -= 1
-            return format
-        
-        coef_var_names = ['coef_' + str(i) for i in range(terms)]
-
-        def polyomial_form(x, *coef_var_names):
-            power = terms - 1
-            output =  0
-            
-            while power >= 0:
-                output += coef_var_names[power] * x**power
-            
-            return output
-        
-        return polyomial_form, formatter
-        
     # def gen_polynomial_form(self, terms = 2):
-    #     if terms == 2:
-    #         def formatter(coefs):
-    #             return f'{coefs[0]} + {coefs[1]} * x'
-    #         return (lambda x, a, b: a + b*x), formatter
-    #     elif terms == 5:
-    #         def formatter(coefs):
-    #             return f'{coefs[0]} + {coefs[1]} * x + {coefs[2]} * x^2 + {coefs[3]} * x^3 + {coefs[4]} * x^4'
-    #         return (lambda x, a, b, c, d, e: a + b*x + c*x**2 + d*x**3 + e*x**4), formatter
-    #     else:
-    #         print("this function is still hardcoded")
+        
+    #     def formatter(coefs):
+    #         # error handling
+    #         if terms != coefs:
+    #             raise Exception('you need to have the same number of terms as coeficients')
+    #         power = terms - 1
+    #         format = f''
+    #         while power > 0:
+    #             if power == 0:
+    #                 format += f'{coefs[power]}'
+    #             elif power == 1:
+    #                 format += f'+ {coefs[power]} * x'
+    #             else:
+    #                 format += f' + {coefs[power]} * x^{power}'
+    #             power -= 1
+    #         return format
+        
+    #     coef_var_names = ['coef_' + str(i) for i in range(terms)]
+
+    #     def polyomial_form(x, *coef_var_names):
+    #         power = terms - 1
+    #         output =  0
+            
+    #         while power >= 0:
+    #             output += coef_var_names[power] * x**power
+            
+    #         return output
+        
+    #     return polyomial_form, formatter
+    
+    #create these functions via string evaluation
+    #eval(f“lambda {params}: polyomial_form({params})”)
+        
+    def gen_polynomial_form(self, terms = 2):
+        if terms == 2:
+            def formatter(coefs):
+                return f'{coefs[0]} + {coefs[1]} * x'
+            return (lambda x, a, b: a + b*x), formatter
+        elif terms == 5:
+            def formatter(coefs):
+                return f'{coefs[0]} + {coefs[1]} * x + {coefs[2]} * x^2 + {coefs[3]} * x^3 + {coefs[4]} * x^4'
+            return (lambda x, a, b, c, d, e: a + b*x + c*x**2 + d*x**3 + e*x**4), formatter
+        else:
+            print("this function is still hardcoded")
             
     def get_coef(self, pts, punchline = False):
         polynomial_fn = self.punchline_polynomial if punchline else self.setup_polynomial
@@ -70,15 +73,15 @@ class NumberJoke:
         return rounded
     
     # generates a list of random input points
-    def gen_pts(self, len = 2):
-        return [round(random()* 50, 0) for i in range(len)]
+    def gen_pts(self, len = 2, mini = -1.0, maxi = 10.0, rounding = 0):
+        return [round(mini + (maxi - mini) * random(), rounding) for i in range(len)]
     
     # generates a setup or punchline
-    def joke_part(self, punchline = False, length = 4):
+    def joke_part(self, punchline = False, length = 3):
         
         # define variables according to whether this is a set-up or punchline
-        length = (length * 2) if punchline else length
-        pts = self.setup_pts + self.gen_pts(len = 1) if punchline else self.gen_pts()
+        length = length * 2 - 1 if punchline else length
+        pts = self.setup_pts + self.gen_pts(1, -10000, 10000, 5) if punchline else self.gen_pts()
         coefs = self.get_coef(pts, punchline)
         polynomial_fn = self.punchline_polynomial if punchline else self.setup_polynomial
         formatter = self.punchline_polynomial_formatter if punchline else self.setup_polynomial_formatter
@@ -91,7 +94,7 @@ class NumberJoke:
             
         # generate the string formatted rule for our setup
         rule = formatter(coefs)
-        return_pts = pts[pts_len:] if punchline else pts
+        return_pts = pts[pts_len-1:] if punchline else pts
         return return_pts,rule
 
         #change so that punchline just gives us the punchline pts alone
@@ -122,8 +125,8 @@ class NumberJoke:
         print('\nThanks for your input!')
         
     
-        
-            
+j = NumberJoke()        
+j.tell_joke()          
 
 ## write a gen punchline fn
 ## un-hard code things one by one            
