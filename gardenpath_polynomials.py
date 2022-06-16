@@ -2,71 +2,122 @@
 from scipy.optimize import curve_fit
 from random import *
 from time import sleep
+import numpy as np
+import matplotlib.pyplot as plt
+from setuptools import setup
+# import seaborn as sns
 
 class NumberJoke:
-    def __init__(self):
+    def __init__(self, setup_terms = 2, setup_length = 4, punchline_terms = 5, punchline_length = 3):
+
+        self.setup_terms = setup_terms
+        self.setup_length = setup_length 
+        self.punchline_terms = punchline_terms
+        self.punchline_length = punchline_length
         
-        self.setup_polynomial, self.setup_polynomial_formatter = self.gen_polynomial_form(2)
-        self.punchline_polynomial, self.punchline_polynomial_formatter = self.gen_polynomial_form(5)
+        #### The following attributes get initialized by gen_joke() ####
+        #LEAVE COMMENTS
+        self.setup = None
+        self.setup_pts = None
+        self.setup_rule = None
+        self.setup_func = None
+       
+        self.punchline = None
+        self.punchline_pts = None
+        self.punchline_rule = None
+        self.punchline_func = None
+        
+        self.joke = None
+        self.visualization = None
+        
+        self.validate_params()
+        self.gen_joke()
+    
+    def validate_params(self):
+        ## docstrings - use `for var names`
+        """_summary_
+        Makes sure that the arguments passed to self.config() or to the NumberJoke class will result in a valid joke.
+        Setup terms must be greater than 0.
+        Setup length must be greater than or equal to setup terms.
+        Punchline length must be greater than or equal to punchline terms minus setup length.
+        Punchline terms must be greater than setup length.
+        Raises:
+            ValueError: _description_
+            ValueError: _description_
+            ValueError: _description_
+            ValueError: _description_
+        """
+        if self.setup_terms <= 0:
+            raise ValueError ('Setup terms must be greater than 0!')
+        if self.setup_length < self.setup_terms:
+            raise ValueError ('Setup length must be greater than or equal to setup terms!')
+        if self.punchline_length < self.punchline_terms - self.setup_length:
+            raise ValueError ('Punchline length must be greater than or equal to punchline terms minus setup length!')
+        if self.punchline_terms <= self.setup_length:
+            raise ValueError ('Punchline terms must be greater than setup length!')  
+    
+    def config(self, setup_terms = None, setup_length = None, punchline_terms = None, punchline_length = None): ## is there a way to have it default to the current settings?
+        """_summary_
+
+        Args:
+            setup_terms (int, optional): the number of terms in your setup rule's polynomial, (e.g. 2 for linear, 5 for quartic). Defaults to None.
+            setup_length (int, optional): the number of points in your setup. Defaults to None.
+            punchline_terms (int, optional): the number of terms in your punchline rule's polynomial, (e.g. 3 for quadratic, 6 for quintic). Defaults to None.
+            punchline_length (int, optional): the number of points in your punchline. Defaults to None.
+
+        Raises:
+            exc: if you've entered int values that wouldn't result in a number joke
+        """
+        old_vals = dict(self.__dict__)
+        self.setup_terms = self.setup_terms if setup_terms == None else setup_terms
+        self.setup_length = setup_length if setup_length == None else setup_length
+        self.punchline_terms = punchline_terms
+        self.punchline_length = punchline_length        
+        try:
+            self.validate_params()
+        except ValueError as exc:
+            self.__dict__.update(old_vals)
+            raise exc     
+        self.gen_joke()
+    
+    def gen_joke(self):
+        self.setup_polynomial, self.setup_polynomial_formatter = self.gen_polynomial_form(self.setup_terms)
+        self.punchline_polynomial, self.punchline_polynomial_formatter = self.gen_polynomial_form(self.punchline_terms)
        
         self.setup = self.joke_part()
         self.setup_pts = self.setup[0]
         self.setup_rule = self.setup[1]
+        self.setup_func = self.setup[2]
        
         self.punchline = self.joke_part(punchline=True)
         self.punchline_pts = self.punchline[0]
         self.punchline_rule = self.punchline[1]
+        self.punchline_func = self.punchline[2]
         
         self.joke = (self.setup_pts + ['...'] + self.punchline_pts, 'This joke is funny because first you think the numers follow this rule:\n' + self.setup_rule + '\nbut then the punchline reveals that they actually follow this rule:\n' + self.punchline_rule)
         self.rating = 'unrated'
     
-    # def gen_polynomial_form(self, terms = 2):
-        
-    #     def formatter(coefs):
-    #         # error handling
-    #         if terms != coefs:
-    #             raise Exception('you need to have the same number of terms as coeficients')
-    #         power = terms - 1
-    #         format = f''
-    #         while power > 0:
-    #             if power == 0:
-    #                 format += f'{coefs[power]}'
-    #             elif power == 1:
-    #                 format += f'+ {coefs[power]} * x'
-    #             else:
-    #                 format += f' + {coefs[power]} * x^{power}'
-    #             power -= 1
-    #         return format
-        
-    #     coef_var_names = ['coef_' + str(i) for i in range(terms)]
+    def gen_polynomial_form(self, terms):
+        params = ['param_' + str(i) for i in range(terms)]
+        params_str = ', '.join(params)
+        def formatter(coefs):
+            # error handling
+            if terms != len(coefs):
+                raise Exception('you need to have the same number of terms as coeficients')
+            format = f''
+            for t in range(terms):
+                if t == 0:
+                    format += f'{coefs[t]}'
+                elif t == 1:
+                    format += f' + {coefs[t]} * x'
+                else:
+                    format += f' + {coefs[t]} * x^{t}'
+            return format
 
-    #     def polyomial_form(x, *coef_var_names):
-    #         power = terms - 1
-    #         output =  0
-            
-    #         while power >= 0:
-    #             output += coef_var_names[power] * x**power
-            
-    #         return output
-        
-    #     return polyomial_form, formatter
-    
-    #create these functions via string evaluation
-    #eval(f“lambda {params}: polyomial_form({params})”)
-        
-    def gen_polynomial_form(self, terms = 2):
-        if terms == 2:
-            def formatter(coefs):
-                return f'{coefs[0]} + {coefs[1]} * x'
-            return (lambda x, a, b: a + b*x), formatter
-        elif terms == 5:
-            def formatter(coefs):
-                return f'{coefs[0]} + {coefs[1]} * x + {coefs[2]} * x^2 + {coefs[3]} * x^3 + {coefs[4]} * x^4'
-            return (lambda x, a, b, c, d, e: a + b*x + c*x**2 + d*x**3 + e*x**4), formatter
-        else:
-            print("this function is still hardcoded")
+        return eval(f'lambda x, {params_str}: {formatter(params).replace("^","**")}'), formatter
             
     def get_coef(self, pts, punchline = False):
+        pts = self.setup_pts + pts if punchline else pts
         polynomial_fn = self.punchline_polynomial if punchline else self.setup_polynomial
         coefs = curve_fit(polynomial_fn, list(range(len(pts))), pts)[0]
         rounded = [round(coef, 2) for coef in coefs]
@@ -77,25 +128,26 @@ class NumberJoke:
         return [round(mini + (maxi - mini) * random(), rounding) for i in range(len)]
     
     # generates a setup or punchline
-    def joke_part(self, punchline = False, length = 3):
-        
+    def joke_part(self, punchline = False):
         # define variables according to whether this is a set-up or punchline
-        length = length * 2 - 1 if punchline else length
-        pts = self.setup_pts + self.gen_pts(1, -10000, 10000, 5) if punchline else self.gen_pts()
-        coefs = self.get_coef(pts, punchline)
+        length = self.punchline_length if punchline else self.setup_length
+        rand_pts = self.gen_pts(self.punchline_terms - self.setup_length, -10000, 10000, randint(0,5)) if punchline else self.gen_pts(len = self.setup_terms)
         polynomial_fn = self.punchline_polynomial if punchline else self.setup_polynomial
         formatter = self.punchline_polynomial_formatter if punchline else self.setup_polynomial_formatter
         
+        coefs = self.get_coef(rand_pts, punchline)
+        
+        def jokepart_function(x):
+            return polynomial_fn(x, *coefs)
+        
         # generate the rest of the points in our joke_part
-        pts_len = len(pts)
-        for x in range(pts_len,length):
-            y = polynomial_fn(x, *coefs)
-            pts.append(y)
+        new_pts = []
+        for x in range(len(rand_pts),length):
+            y = jokepart_function(x)
+            new_pts.append(y)
             
-        # generate the string formatted rule for our setup
-        rule = formatter(coefs)
-        return_pts = pts[pts_len-1:] if punchline else pts
-        return return_pts,rule
+        # return the points and the string-formatted rule for our joke part
+        return rand_pts + new_pts,formatter(coefs),jokepart_function
 
         #change so that punchline just gives us the punchline pts alone
     
@@ -124,23 +176,38 @@ class NumberJoke:
         self.rating = rating
         print('\nThanks for your input!')
         
-    
-j = NumberJoke()        
-j.tell_joke()          
-
-## write a gen punchline fn
-## un-hard code things one by one            
-    
-    
-# 2, 4, 6, 8 ... 100, 150
+    def visualize(self):
         
-# a + b*x
-# coef1 + coef2*x
-# where x is len(setup_pts + n)
+        # linearly spaced numbers the with room for the biggest absolute value in the joke
+        joke_pts = self.setup_pts + self.punchline_pts
+        
+        x = np.linspace(0, len(joke_pts), 1000)
+        scatter_x = np.linspace(0, len(joke_pts), len(joke_pts)+1)
+        st_y = self.setup_func(x)
+        pl_y = self.punchline_func(x)
+        
+        fig, ax = plt.subplots()
+        step = 1000//len(joke_pts)
+        scaled_rng = range(0,1000,step)
+        ax.plot(x, st_y, '-b*', markevery = scaled_rng[0:len(self.setup_pts)], label = self.setup_rule)
+        ax.plot(x, pl_y, '-c*', markevery = scaled_rng[len(self.setup_pts):], label = self.punchline_rule)
+        # ax.plot(x, st_y, '-b', label = self.setup_rule)
+        # ax.plot(x, pl_y, '-c', label = self.punchline_rule)
+        # ax.plot(scatter_x, joke_pts, 'o', color='tab:purple', label='the joke itself')
+        
+        plt.legend()
+        return (plt.show())
+        ## TODO: make an animation
+        
+        ## figure out why function doesn't match values when using cubic and quintic
+    
+j = NumberJoke(3,5,6,3)
 
-# set up rule: y = a*x + b
-# set up: [y1, y2, y3, y4 ...]
-# punchline rule: y = ax^4 + bx^3 + cx^2 + dx + e
+j.tell_joke()
+j.visualize()     
+
+        
+
 
 
 # **generate set up**
@@ -161,9 +228,3 @@ j.tell_joke()
 # then fit a quintic to those 5 points
 # write a polynomial to string function
 # write a visualization for the joke using mat plot lib
-
-
-# create a JokePart class
-# has a function
-# a string representation of the function
-# a series of y values where x = 1, 2 ... depending on complexity of function (linear, quadratic, etc.)
