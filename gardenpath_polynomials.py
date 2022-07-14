@@ -340,11 +340,11 @@ class NumberJoke:
 
         
     
-j = NumberJoke(2,2,5,3)
+#j = NumberJoke(2,2,5,3)
 
 #j.tell_joke()
 # j.visualize()
-j.animate()     
+#j.animate()     
 
         
 
