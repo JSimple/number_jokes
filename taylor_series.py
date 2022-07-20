@@ -1,7 +1,7 @@
 from math import factorial
 import sympy as sym
 
-x = sym.Symbol('x')
+x = sym.Symbol('i')
 
 def TaylorPolynomial(model,degree):
     Derivatives = [model]
