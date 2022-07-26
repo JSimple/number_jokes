@@ -177,7 +177,7 @@ class NumberJoke:
         self.rating = rating
         print('\nThanks for your input!')
         
-    def visualize(self):
+    def visualize(self, show = True):
         
         joke_pts = self.setup_pts + self.punchline_pts
         x = np.linspace(0, len(joke_pts), 1000)
@@ -188,15 +188,61 @@ class NumberJoke:
         step = 1000//len(joke_pts)
         scaled_rng = range(0,1000,step)
         ax[0].plot(x, st_y, '-b*', markevery = scaled_rng[0:len(self.setup_pts)], label = self.setup_rule)
-        ymin, ymax = ax[0].get_ylim()
+        st_ymin, st_ymax = ax[0].get_ylim()
         ax[0].plot(x, pl_y, '-c*', markevery = scaled_rng[len(self.setup_pts):], label = self.punchline_rule)
-        ax[0].set_ylim(ymin,ymax)
+        ax[0].set_ylim(st_ymin,st_ymax)
         
         ax[1].plot(x, st_y, '-b*', markevery = scaled_rng[0:len(self.setup_pts)], label = self.setup_rule)
         ax[1].plot(x, pl_y, '-c*', markevery = scaled_rng[len(self.setup_pts):], label = self.punchline_rule)
-        
+        pl_ymin, pl_ymax = ax[1].get_ylim()
         plt.legend()
-        return (plt.show())
+        plt.show() if show else plt.close('all')
+        return (st_ymin,st_ymax,pl_ymin,pl_ymax)
+    
+    def animated_plot(self):
+        # get the set up and punchline range
+        st_ymin,st_ymax,pl_ymin,pl_ymax = self.visualize(show = False)
+        
+        joke_pts = self.setup_pts + self.punchline_pts
+        x = np.linspace(0, len(joke_pts), 1000)
+        st_y = self.setup_func(x)
+        pl_y = self.punchline_func(x)
+
+        # setup_pts * framerate number of frames with st_ymin,st_ymax
+        # punchline_pts * framerate number of points * num seconds of traveling btwn joke pts
+            # change the ymin and y max per frame
+            # increment = (pl_ymin - st_ymin, pl_ymax - st_ymax) / num frames
+        
+        i_frames = 4
+        
+        y_lims = [(st_ymin, st_ymax)] * len(self.setup_pts) * i_frames
+        frames_in_pl = len(self.punchline_pts) * i_frames
+        min_increment = (pl_ymin - st_ymin)/frames_in_pl
+        max_increment = (pl_ymax - st_ymax)/frames_in_pl
+        y_lims += [(st_ymin + i * min_increment, st_ymax + i * max_increment) for i in range (frames_in_pl)]
+        
+        for i,(ylim_min, ylim_max) in enumerate(y_lims):
+            fig, ax = plt.subplots(1,1)
+            step = 1000//len(joke_pts)
+            scaled_rng = range(0,1000,step)
+            ax.plot(x, st_y, '-b', label = self.setup_rule)
+            ax.plot(x, pl_y, '-c', label = self.punchline_rule)
+            ax.set_ylim(ylim_min,ylim_max)
+            plt.savefig(f'./animated_plot/frame_{i}')
+            #saves on disk and then stich together w commandline
+            #marker: moving circle 
+        #scaled_rng[0:len(self.setup_pts)]
+        #scaled_rng[len(self.setup_pts):]
+        
+        
+    
+    
+    
+    
+j = NumberJoke(2,2,5,3)
+
+#j.tell_joke()
+j.animated_plot()  
     
     
     ##### TO DO: animate in matplotlib?
@@ -216,135 +262,15 @@ class NumberJoke:
         
         
         
-    # def animate(self):
-        
-    #     joke_pts = self.setup_pts + self.punchline_pts
-    #     jk_len = len(joke_pts)
-    #     st_len = len(self.setup_pts)
-    #     pl_len = len(self.punchline_pts)
-        
-    #     linspace_pts = 1000
-    #     animation_step = linspace_pts//len(joke_pts)
-        
-    #     x = np.linspace(0, len(joke_pts), linspace_pts)
-    #     xm = np.min(x) #- 1.5
-    #     xM = np.max(x) #+ 1.5
-        
-    #     st_y = self.setup_func(x)
-    #     st_ym = np.min(st_y) #- 1.5
-    #     st_yM = np.max(st_y) #+ 1.5
-        
-    #     pl_y = self.punchline_func(x)
-    #     pl_ym = np.min(pl_y) #- 1.5
-    #     pl_yM = np.max(pl_y) #+ 1.5
-        
-        
-    #     frames = []
-    #     i_frames = 20
-    #     z_frames = 0
-        
-    #     for f in range(st_len * i_frames):
-    #         if f % i_frames == 0:
-    #             color = 'red'
-    #             plot_times = 30
-    #         else:
-    #             color = '#0300ab'
-    #             plot_times = 1
-            
-    #         fr = go.Frame(data=[go.Scatter(
-    #             x=[x[int(f * animation_step / i_frames)]],
-    #             y=[st_y[int(f * animation_step / i_frames)]],
-    #             mode="markers",
-    #             marker=dict(color=color, size=10)),
-    #         ])
-    #         # fr.update(
-    #         #     layout=dict(yaxis=dict(range=[st_ym,st_yM]))
-    #         # )
-    #         frames += [fr] * plot_times
-        
-        
-    #     # for f in range(z_frames):
-    #     #     fr = go.Frame(
-    #     #         data=[
-    #     #             go.Scatter(
-    #     #                 x=[x[int(st_len * animation_step)]],
-    #     #                 y=[pl_y[int(f * animation_step / i_frames)]],
-    #     #                 mode="markers",
-    #     #                 marker=dict(color='red', size=10))
-    #     #             ]
-    #     #         )
-    #     #     fr.update(
-    #     #         layout=dict(yaxis=dict(range=[pl_ym,pl_yM]))
-    #     #     )
-    #     #     frames += [fr]
-        
-            
-    #     for f in range((st_len * i_frames) + z_frames, jk_len * i_frames):
-    #         if f % i_frames == 0:
-    #             color = 'red'
-    #             plot_times = 2
-    #         else:
-    #             color = '#009da6'
-    #             plot_times = 1
-            
-    #         fr = go.Frame(
-    #             data=[
-    #                 go.Scatter(
-    #                     x=[x[int(f * animation_step / i_frames)]],
-    #                     y=[pl_y[int(f * animation_step / i_frames)]],
-    #                     mode="markers",
-    #                     marker=dict(color=color, size=10))
-    #                 ]
-    #             # layout = go.Layout(
-    #             #     yaxis=dict(range=[pl_ym, pl_yM], autorange=False, zeroline=False))
-    #         )
-    #         fr.update(
-    #             layout=dict(yaxis=dict(range=[pl_ym,pl_yM]),xaxis=dict(range=[xm,xM]) )
-    #         )
-    #         frames += [fr] * plot_times
-
-        
-    #     st_curve = go.Scatter(x=x, y=st_y,
-    #                 mode="lines",
-    #                 name = 'setup',
-    #                 line=dict(width=2, color="blue"))
-    #     pl_curve = go.Scatter(x=x, y=pl_y,
-    #                 mode="lines",
-    #                 name = 'punchline',
-    #                 line=dict(width=2, color="cyan"))
-        
-    #     fig = go.Figure(
-    #         data=[st_curve,st_curve,pl_curve,pl_curve],
-    #         layout=go.Layout(
-    #             xaxis=dict(range=[xm, xM], autorange=False, zeroline=False),
-    #             yaxis=dict(range=[st_ym, st_yM], autorange=False, zeroline=False),
-    #             title_text="Joke Visualization", 
-    #             hovermode="closest",
-    #             transition={'duration': 100}, #,'easing': 'linear', 'ordering': 'traces first'},
-    #             updatemenus=[dict(type="buttons",
-    #                             buttons=[dict(label="Play",
-    #                                             method="animate",
-    #                                             args=[None,
-    #                                                   dict(frame = dict(duration = 100,
-    #                                                                     redraw=True))
-    #                                                 ])])]),
-    #         frames= frames
-    #     )
+    
     #     #fig.update_layout(transition = {'duration': 1}, title_text = 'Joke') # make transitions faster
     #     ##fig.update_yaxes(autorange=True)
-    #     fig.show()
+    #     
     #     #### TODO: https://stackoverflow.com/questions/69584171/is-there-a-way-to-dynamically-change-a-plotly-animation-axis-scale-per-frame
 
         
-        
-
-        
     
-#j = NumberJoke(2,2,5,3)
-
-#j.tell_joke()
-# j.visualize()
-#j.animate()     
+ 
 
         
 
