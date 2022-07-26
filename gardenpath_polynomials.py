@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from setuptools import setup
 import plotly.graph_objects as go
+from math import pow
 
 class NumberJoke:
     def __init__(self, setup_terms = 2, setup_length = 4, punchline_terms = 5, punchline_length = 3):
@@ -214,21 +215,37 @@ class NumberJoke:
             # increment = (pl_ymin - st_ymin, pl_ymax - st_ymax) / num frames
         
         i_frames = 4
+        frames_in_pl = len(self.punchline_pts) * i_frames
+        # sty * growthrate ** ply
+        # growthrate = ply root frames in pl
         
         y_lims = [(st_ymin, st_ymax)] * len(self.setup_pts) * i_frames
-        frames_in_pl = len(self.punchline_pts) * i_frames
         min_increment = (pl_ymin - st_ymin)/frames_in_pl
         max_increment = (pl_ymax - st_ymax)/frames_in_pl
-        y_lims += [(st_ymin + i * min_increment, st_ymax + i * max_increment) for i in range (frames_in_pl)]
+        y_lims += [(st_ymin + i * min_increment, st_ymax + i * max_increment) for i in range (1,frames_in_pl)]
+        
+        # Governing equasion: pl_y = st_y * (pl_y_growth_rate ** i)
+        ymin_delta = abs(pl_ymin - st_ymin)
+        ymax_delta = abs(pl_ymax - st_ymax)
+        pl_ymin_growth_rate = ymin_delta ** (1/frames_in_pl)
+        pl_ymax_growth_rate = ymax_delta ** (1/frames_in_pl)
+            
+        for i in range (1,frames_in_pl):
+            y_min = st_ymin + (ymin_delta * (pl_ymin_growth_rate ** i))
+            y_max = st_ymax + (ymax_delta * (pl_ymax_growth_rate ** i))
+            y_lims.append((y_min,y_max))
+
+        print(y_lims)
         
         for i,(ylim_min, ylim_max) in enumerate(y_lims):
             fig, ax = plt.subplots(1,1)
-            step = 1000//len(joke_pts)
-            scaled_rng = range(0,1000,step)
+            # step = 1000//len(joke_pts)
+            # scaled_rng = range(0,1000,step)
             ax.plot(x, st_y, '-b', label = self.setup_rule)
             ax.plot(x, pl_y, '-c', label = self.punchline_rule)
             ax.set_ylim(ylim_min,ylim_max)
-            plt.savefig(f'./animated_plot/frame_{i}')
+            plt.show()
+            #plt.savefig(f'./animated_plot/frame_{i}')
             #saves on disk and then stich together w commandline
             #marker: moving circle 
         #scaled_rng[0:len(self.setup_pts)]
