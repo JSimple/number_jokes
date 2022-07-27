@@ -143,6 +143,7 @@ class NumberJoke:
     
     # generates a setup or punchline
     def joke_part(self, punchline = False):
+        #TODO: extract if else statements into params for st/pl functions
         # define variables according to whether this is a set-up or punchline
         length = self.punchline_length + self.setup_length if punchline else self.setup_length
         rand_pts = self.gen_pts(self.punchline_terms - self.setup_length, -10000, 10000, randint(0,5)) if punchline else self.gen_pts(len = self.setup_terms)
@@ -151,19 +152,16 @@ class NumberJoke:
         
         coefs = self.get_coef(rand_pts, punchline)
         terms = self.punchline_terms if punchline else self.setup_terms
-        
-        def jokepart_function(x):
-            return polynomial_fn(x, *coefs)
-        
+    
         # generate the rest of the points in our joke_part
         start = (len(rand_pts) + self.setup_length) if punchline else len(rand_pts)
         new_pts = []
         for x in range(start,length):
-            y = jokepart_function(x)
+            y = polynomial_fn(x, *coefs)
             new_pts.append(y)
             
         # return the points and the string-formatted rule for our joke part
-        return rand_pts + new_pts,formatter(terms, coefs),jokepart_function
+        return rand_pts + new_pts,formatter(terms, coefs), polynomial_fn
 
         #change so that punchline just gives us the punchline pts alone
     
