@@ -1,4 +1,3 @@
-# polynomial generator rule: rx^n + rx^n-1 ... rx^n-n
 from scipy.optimize import curve_fit
 from random import *
 from time import sleep
@@ -9,8 +8,13 @@ import plotly.graph_objects as go
 from math import pow
 
 class NumberJoke:
-    def __init__(self, setup_terms = 2, setup_length = 4, punchline_terms = 5, punchline_length = 3):
+    def __init__(self, setup_terms = 2, setup_length = 4, punchline_terms = 5, punchline_length = 3, random_seed = None):
+        
+        if not random_seed:
+            random_seed = random()
 
+        seed(random_seed)
+        self.random_seed = random_seed
         self.setup_terms = setup_terms
         self.setup_length = setup_length 
         self.punchline_terms = punchline_terms
@@ -95,14 +99,19 @@ class NumberJoke:
         self.punchline_rule = self.punchline[1]
         self.punchline_func = self.punchline[2]
         
-        self.joke = (self.setup_pts + ['...'] + self.punchline_pts, 'This joke is funny because first you think the numers follow this rule:\n' + self.setup_rule + '\nbut then the punchline reveals that they actually follow this rule:\n' + self.punchline_rule)
+        self.joke = {
+            'random_seed': self.random_seed,
+            'setup_pts': self.setup_pts,
+            'punchline_pts': self.punchline_pts,
+            'setup_length': self.setup_length,
+            'punchline_length': self.punchline_length,
+            'setup_terms': self.setup_terms,
+            'punchline_terms': self.punchline_terms
+        }
         self.rating = 'unrated'
     
-    def gen_polynomial_form(self, terms):
-        params = ['param_' + str(i) for i in range(terms)]
-        params_str = ', '.join(params)
-        def formatter(coefs):
-            # error handling
+    def formatter(self, terms, coefs):
+       # error handling
             if terms != len(coefs):
                 raise Exception('you need to have the same number of terms as coeficients')
             format = f''
@@ -113,9 +122,13 @@ class NumberJoke:
                     format += f' + {coefs[t]} * x'
                 else:
                     format += f' + {coefs[t]} * x^{t}'
-            return format
+            return format 
+    
+    def gen_polynomial_form(self, terms):
+        params = ['param_' + str(i) for i in range(terms)]
+        params_str = ', '.join(params)
 
-        return eval(f'lambda x, {params_str}: {formatter(params).replace("^","**")}'), formatter
+        return eval(f'lambda x, {params_str}: {self.formatter(terms,params).replace("^","**")}'), self.formatter
             
     def get_coef(self, pts, punchline = False):
         pts = self.setup_pts + pts if punchline else pts
@@ -137,6 +150,7 @@ class NumberJoke:
         formatter = self.punchline_polynomial_formatter if punchline else self.setup_polynomial_formatter
         
         coefs = self.get_coef(rand_pts, punchline)
+        terms = self.punchline_terms if punchline else self.setup_terms
         
         def jokepart_function(x):
             return polynomial_fn(x, *coefs)
@@ -149,7 +163,7 @@ class NumberJoke:
             new_pts.append(y)
             
         # return the points and the string-formatted rule for our joke part
-        return rand_pts + new_pts,formatter(coefs),jokepart_function
+        return rand_pts + new_pts,formatter(terms, coefs),jokepart_function
 
         #change so that punchline just gives us the punchline pts alone
     
@@ -258,8 +272,8 @@ class NumberJoke:
     
 j = NumberJoke(2,2,5,3)
 
-#j.tell_joke()
-j.animated_plot()  
+j.tell_joke()
+#j.animated_plot()  
     
     
     ##### TO DO: animate in matplotlib?
