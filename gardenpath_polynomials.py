@@ -237,6 +237,7 @@ class NumberJoke:
         y_lims += [(st_ymin + i * min_increment, st_ymax + i * max_increment) for i in range (1,frames_in_pl)]
         
         # Governing equasion: pl_y = st_y * (pl_y_growth_rate ** i)
+        # https://www.reddit.com/r/askmath/comments/8cg62x/how_do_i_divide_100_into_12_exponentially/
         ymin_delta = abs(pl_ymin - st_ymin)
         ymax_delta = abs(pl_ymax - st_ymax)
         pl_ymin_growth_rate = ymin_delta ** (1/frames_in_pl)
@@ -262,43 +263,12 @@ class NumberJoke:
             #marker: moving circle 
         #scaled_rng[0:len(self.setup_pts)]
         #scaled_rng[len(self.setup_pts):]
-        
-        
-    
-    
     
     
 j = NumberJoke(2,2,5,3)
 
 j.tell_joke()
 #j.animated_plot()  
-    
-    
-    ##### TO DO: animate in matplotlib?
-    ##### https://matplotlib.org/stable/gallery/animation/strip_chart.html
-    
-    # def animated_vis(self):
-    #     joke_pts = self.setup_pts + self.punchline_pts
-    #     fig, ax = plt.subplots(1,2)
-    #     x = np.linspace(0, len(joke_pts), 1000)
-    #     st_y = self.setup_func(x)
-    #     pl_y = self.punchline_func(x)
-    #     st_line, = ax[0].plot(x, st_y)
-    #     pl_line, = ax[1].plot(x, pl_y)
-        
-        
-        
-        
-        
-        
-    
-    #     #fig.update_layout(transition = {'duration': 1}, title_text = 'Joke') # make transitions faster
-    #     ##fig.update_yaxes(autorange=True)
-    #     
-    #     #### TODO: https://stackoverflow.com/questions/69584171/is-there-a-way-to-dynamically-change-a-plotly-animation-axis-scale-per-frame
-
-        
-    
  
 
         
