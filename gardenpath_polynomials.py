@@ -178,7 +178,7 @@ class NumberJoke:
         sleep(0.5 * suspense)
         print('\n !! :-)')
         sleep(4 * suspense)
-        print('\nThis joke was funny because first you thought the numers followed this rule:')
+        print('\nThis joke was funny because first you thought the numbers followed this rule:')
         sleep(1.5 * suspense)     
         print('\n y = ' + self.setup_rule)
         sleep(2.5 * suspense)
