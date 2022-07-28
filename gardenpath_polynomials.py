@@ -265,9 +265,9 @@ class NumberJoke:
         #scaled_rng[len(self.setup_pts):]
     
     
-j = NumberJoke(2,2,5,3)
+j = NumberJoke()
 
-j.tell_joke()
+#j.tell_joke()
 #j.animated_plot()  
  
 
