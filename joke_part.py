@@ -63,9 +63,9 @@ class PolynomialJokePart:
         self.polynomial = p
 
 
-pjp = PolynomialJokePart()
-print(pjp.json())
-pjp.add_custom_points([4,2])
-print('now with points:\n', pjp.json())
-pjp.fit_polynomial()
-print('now with a polynomial:\n', pjp.json())
+# pjp = PolynomialJokePart()
+# print(pjp.json())
+# pjp.add_custom_points([4,2])
+# print('now with points:\n', pjp.json())
+# pjp.fit_polynomial()
+# print('now with a polynomial:\n', pjp.json())
