@@ -5,17 +5,13 @@ import json
 class PolynomialEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, P):
-            return({
-                'coef' : list(obj.coef),
-                'str' : str(obj)
-                })
+            return(list(obj.coef))
         return super().default(obj)
 
 class PolynomialJokePart:
     def __init__(self, points: list = [], prev_points: list = [], polynomial = None) -> None:
         self.prev_points = [float(p)for p in prev_points]
         self.points = [float(p)for p in points]
-        self.all_points = self.prev_points + self.points
         self.polynomial = polynomial
         self.type = 'polynomial'
     
@@ -28,17 +24,15 @@ class PolynomialJokePart:
         '''
         self.prev_points = []
         self.points = []
-        self.all_points = []
         self.polynomial = P()
     
     def add_points(self, num_points: int = 0):
         '''Generate and append to JokePart's points attribute a specified number of points that follow the JokePart's polynomial attribute
         '''
-        all_points_len = len(self.all_points)
+        all_points_len = len(self.prev_points + self.points)
         for i in range(all_points_len, all_points_len + num_points):
             pt = self.polynomial(i)
             self.points.append(pt)
-            self.all_points.append(pt)
     
     def add_custom_points(self, points: list = []):
         """Append a list of numbers to the JokePart's points attribute.
@@ -48,24 +42,24 @@ class PolynomialJokePart:
         """
         float_points = [float(p)for p in points]
         self.points += float_points
-        self.all_points += float_points
 
     def fit_polynomial(self):
         '''
         Fits a polynomial function to the JokePart's points attribute.\
         Given n points, the polynomial function will have n terms.
         '''
-        degree = len(self.all_points)-1
+        all_points = self.prev_points + self.points
+        degree = len(all_points)-1
         x = [i for i in range(degree+1)]
-        p = P.fit(x,self.all_points,degree,[])
+        p = P.fit(x,all_points,degree,[])
         # new_coefs = [round(c) for c in p.coef]
         # p = P(new_coefs)
         self.polynomial = p
 
 
-# pjp = PolynomialJokePart()
-# print(pjp.json())
-# pjp.add_custom_points([4,2])
-# print('now with points:\n', pjp.json())
-# pjp.fit_polynomial()
-# print('now with a polynomial:\n', pjp.json())
+pjp = PolynomialJokePart()
+print(pjp.json())
+pjp.add_custom_points([4,2])
+print('now with points:\n', pjp.json())
+pjp.fit_polynomial()
+print('now with a polynomial:\n', pjp.json())
