@@ -1,9 +1,9 @@
 from joke_part import PolynomialJokePart as JP
 from numpy.polynomial import Polynomial as P
-from random import random
+from random import *
 import json
 
-#TODO: allpoints bug. refactor to remove allpoints from PJP
+#TODO: allpoints bug. test that it's not a JSON bug, if not refactor to remove allpoints from PJP
 
 class PGPEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -21,7 +21,12 @@ class PGPEncoder(json.JSONEncoder):
 
 class PolynomialGardenpath():
     
-    def __init__(self) -> None:
+    def __init__(self, random_seed = None) -> None:
+                
+        if not random_seed:
+            random_seed = random()
+
+        seed(random_seed)
         self.joke_parts = []
     
     def clear(self):
@@ -53,7 +58,6 @@ class PolynomialGardenpath():
         # add points untill desired length
         if auto_fill:
             jp.add_points(auto_fill)
-        
         # append to joke_parts
         self.joke_parts.append(jp)
         
@@ -144,7 +148,7 @@ class PolynomialGardenpath():
         all_prev_points = self._get_all_points()
         biggest_point_so_far = 0
         if all_prev_points:
-            biggest_point_so_far = max(max(all_prev_points,key=abs))
+            biggest_point_so_far = abs(max(all_prev_points,key=abs))
         random_points_range = (-5,10)
         for i,(degree,length) in enumerate(jp_degree_and_length):
             if biggest_point_so_far:
@@ -171,18 +175,18 @@ class PolynomialGardenpath():
         self.add_gen_joke_parts(jp_degree_and_length, range_scaling, rounding)
     
         
-pgp = PolynomialGardenpath()
+# pgp = PolynomialGardenpath()
 
-pgp.gen_joke([(0,1),(1,1)])
-# for jp in pgp.joke_parts:
-#     print(jp.points,jp.polynomial)
-pgp.add_gen_joke_parts([(2,1),(3,1)])
-# for jp in pgp.joke_parts:
-#     print(jp.points,jp.polynomial)    
-print(pgp._get_all_points())
-my_json = pgp.json()
-parsed = json.loads(my_json)
-print(json.dumps(parsed, indent=4, sort_keys=True))
+# pgp.gen_joke([(0,1),(1,1)])
+# # for jp in pgp.joke_parts:
+# #     print(jp.points,jp.polynomial)
+# pgp.add_gen_joke_parts([(2,1),(3,1)])
+# # for jp in pgp.joke_parts:
+# #     print(jp.points,jp.polynomial)    
+# print(pgp._get_all_points())
+# my_json = pgp.json()
+# parsed = json.loads(my_json)
+# print(json.dumps(parsed, indent=4, sort_keys=True))
     
 # Joke Param Structure
         # setup:
