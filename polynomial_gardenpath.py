@@ -1,5 +1,5 @@
 from math import log2
-from joke_part import PolynomialJokePart as JP
+from .joke_part import PolynomialJokePart as JP
 from numpy.polynomial import Polynomial as P
 from random import *
 import json
@@ -158,18 +158,18 @@ class PolynomialGardenpath():
         self.add_gen_joke_parts(jp_degree_and_length, rounding)
     
         
-pgp = PolynomialGardenpath()
+# pgp = PolynomialGardenpath()
 
-pgp.gen_joke()
-# for jp in pgp.joke_parts:
-#     print(jp.points,jp.polynomial)
-pgp.add_gen_joke_parts([(8,3),(11,4)])
-# for jp in pgp.joke_parts:
-#     print(jp.points,jp.polynomial)    
-print(pgp._all_points())
-my_json = pgp.json()
-parsed = json.loads(my_json)
-print(json.dumps(parsed, indent=4, sort_keys=True))
+# pgp.gen_joke()
+# # for jp in pgp.joke_parts:
+# #     print(jp.points,jp.polynomial)
+# pgp.add_gen_joke_parts([(8,3),(11,4)])
+# # for jp in pgp.joke_parts:
+# #     print(jp.points,jp.polynomial)    
+# print(pgp._all_points())
+# my_json = pgp.json()
+# parsed = json.loads(my_json)
+# print(json.dumps(parsed, indent=4, sort_keys=True))
     
 # Joke Param Structure
         # setup:
