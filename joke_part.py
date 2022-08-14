@@ -51,7 +51,7 @@ class PolynomialJokePart:
         all_points = self.prev_points + self.points
         degree = len(all_points)-1
         x = [i for i in range(degree+1)]
-        p = P.fit(x,all_points,degree,[])
+        p = P.fit(x,all_points,degree,[-1,1])
         # new_coefs = [round(c) for c in p.coef]
         # p = P(new_coefs)
         self.polynomial = p
