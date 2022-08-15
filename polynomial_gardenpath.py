@@ -75,12 +75,12 @@ class PolynomialGardenpath():
         # append to joke_parts
         self.joke_parts.append(jp.points)
     
-    def _gen_value_range(self, start = 1, scaling_factor = 100):
+    def _gen_value_range(self, start = 1, scaling_factor = 1000):
         """Helper function for functions that use _gen_pts. Creates a tuple representing a vlaue range, based on thow many JokeParts are in the joke and a scaling factor.
         """
         scaling_order = log2(len(self.joke_parts) + 1)
         maxi = start * 10 * (scaling_factor ** scaling_order)
-        mini = maxi * -1
+        mini = (maxi * -1) + 9
         
         return (mini,maxi)
     
