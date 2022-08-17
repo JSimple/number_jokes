@@ -57,7 +57,49 @@ Create an instance of the class:
 ```
 my_joke = PolynomialGardenpath()
 ```
-Next, the quickest way to generate a joke is with the  
+Next, the quickest way to generate a joke is:
+```
+my_joke.gen_joke()
+```
+The content of the joke will be stored as a list of `JokePart`s in the `my_joke`'s `joke_parts` attribute.
+
+`gen_joke` has a couple of parameters that we can play around with if we want more control over the kind of joke we get. The most important parameter is the first one, `jp_degree_and_length`. This is a list of tuples that represent information about each of the joke parts we want to have in our joke. Each tuple in `jp_degree_and_length` consists of two values. The first represents the joke part's polynomial degree, and the second represents the joke part's length (i.e. how many numbers will be in the joke part). 
+
+for example, let's say we want to generate a number joke with the following structure:
+
+- a setup that follows a **1st degree polynomial rule** and is **4 numbers long**
+- a punchline that follows a **4th degree polynomial rule** and is **3 numbers long**
+- a kicker that follows a **7th degree polynomial rule**  and is **2 numbers long**
+- another kicker (we can have as many as we want!) that follows a **10th degree polynomial rule** and is 3 numbers long
+
+This is what we'd input into the `gen_joke` method:
+
+```
+my_joke.gen_joke([
+                (1,4), 
+                (4,3),
+                (7,2), 
+                (10,3)
+                ])
+```
+
+at any point in time we may add additional joke parts to our joke in a similar fashion using the `add_gen_joke_parts` method.
+
+Let's say we want to add two more kickers, one that follows an 11th degree polynomial rule and has one number, and another that follows an 13th degree polynomial rule and has 5 numbers. This is how we'd do it:
+
+```
+my_joke.add_gen_joke_parts([ (11, 1), (13, 5)])
+
+```
+Now let's say we want to add one final kicker to our joke. But this time we don't want to leave the numbers in our joke part up to the semi-random algorithm. We actually want to specify that this joke part will be: 3, 2, 1. For this we can use the `add_joke_part_w_points` method like so:
+
+```
+my_joke.add_joke_part_w_points([3, 2, 1])
+```
+
+Now you know all the basic functionality for polynimial gardenpath generation! If you wante to get even further into the nitty-gritty, feel free to explore the module's docstrings.
+
+Happy number joke generation!
 
 
 

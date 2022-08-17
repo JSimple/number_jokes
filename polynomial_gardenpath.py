@@ -104,9 +104,6 @@ class PolynomialGardenpath():
         Args:
             degree (int, optional): the polynomial's highest degree. Defaults to 1.
             coef_range (tuple, optional): the value range for the polynomial's coeficients. Defaults to (-10.0,10.0).
-
-        Returns:
-            _type_: _description_
         """
         terms = degree + 1
         coefs = self._gen_pts(terms,coef_range)
@@ -117,7 +114,7 @@ class PolynomialGardenpath():
         """Makes sure that valid parameters are being passed to random joke generation methods.
 
         Args:
-            jp_degree_and_length (list of tuples): _description_
+            jp_degree_and_length (list of tuples)
         """
         prev_total_length = len(self._all_points())
         
@@ -131,7 +128,7 @@ class PolynomialGardenpath():
         """_summary_
 
         Args:
-            jp_degree_and_length (list, optional): _description_. Defaults to [(2,4),(5,3)].
+            jp_degree_and_length (list, optional): Defaults to [(2,4),(5,3)].
         """
         # Validate parameters
         self._validate_gen_params(jp_degree_and_length)
