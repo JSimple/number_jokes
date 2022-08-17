@@ -1,3 +1,11 @@
+##############################################################
+#           THIS CODE IS DEPRICATED.                         #
+#      I HAVE INCLUDED IT HERE FOR PERSONAL REFERENCE,       #
+#     BUT IT WILL BE REMOVED IN FUTURE VERSIONS.             #
+# THE LATEST CODE FOR POLYNOMIAL GARDEN PATH JOKE GENERATION #
+#         IS IN THE polynomial_gardenpath.py FILE.           #
+##############################################################
+
 from scipy.optimize import curve_fit
 from random import *
 from time import sleep
@@ -9,7 +17,7 @@ from math import pow
 
 class NumberJoke:
     def __init__(self, setup_terms = 2, setup_length = 4, punchline_terms = 5, punchline_length = 3, random_seed = None):
-        
+        print('This class is depreciated. Please use the PolynomialGardenpath class')
         if not random_seed:
             random_seed = random()
 
