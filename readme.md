@@ -1,3 +1,5 @@
+### to see my numberjoke generator go to: http://jsimple.pythonanywhere.com/
+
 # What is a Number Joke?
 A number joke is an ordered sequence of numbers, the progression of which mimics the structure of a joke. For example:
 
